@@ -224,9 +224,8 @@ class _debugState extends State<debug> {
 
   @override
   void initState() {
-    // TODO: implement initState
     // compression_loop();
-    get_desired_output_size("assets/jpgs/15mb.jpg",{"height": 1080, "width": 1980}, 5*1000*1000, "jpg");
+    get_desired_output_size("assets/jpgs/1mb.jpg",{"height": 4000, "width": 4000}, 5*1000*1000, "jpg");
     super.initState();
   }
 
