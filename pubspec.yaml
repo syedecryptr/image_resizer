@@ -33,6 +33,8 @@ dependencies:
   flutter_native_image: ^0.0.5
   downloads_path_provider: ^0.1.0
   google_fonts: ^1.1.2
+  multi_image_picker: ^4.7.15
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
