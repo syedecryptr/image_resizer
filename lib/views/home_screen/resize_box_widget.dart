@@ -1,13 +1,21 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/painting.dart';
+import 'package:provider/provider.dart';
+import 'package:image_resizer/providers/image_process/image_processor.dart';
 import 'package:image_resizer/views/theme/colors.dart';
 import 'package:image_resizer/views/theme/size_config.dart';
 import 'package:image_resizer/views/theme/text_format.dart';
 
 class ResizeBoxWidget extends StatelessWidget {
-  var width = SizeConfig.blockSizeHorizontal * 90;
+  ImageProcessingProvider im_provider;
+  var width_controller = TextEditingController();
+  var height_controller = TextEditingController();
+  var output_size_controller = TextEditingController();
+  var output_size_type_controller = TextEditingController();
+
   var height = SizeConfig.blockSizeVertical * 40;
+  var width = SizeConfig.blockSizeHorizontal * 90;
   var padding = SizeConfig.blockSizeHorizontal * 5;
   var shape_box_width = SizeConfig.blockSizeHorizontal * 30;
   var shape_box_height = SizeConfig.blockSizeVertical * 4;
@@ -16,16 +24,17 @@ class ResizeBoxWidget extends StatelessWidget {
   var size_type_width = SizeConfig.blockSizeHorizontal * 15;
   var size_type_heigth = SizeConfig.blockSizeVertical * 4;
 
+
   @override
   Widget build(BuildContext context) {
     SizeConfig().init(context);
+    im_provider = context.read<ImageProcessingProvider>();
 
     return Container(
         // padding: EdgeInsets.all(padding),
         width: width,
         height: height,
         decoration: BoxDecoration(
-          // TODO: create new color dull white.
           color: ThemeColors.grey_main,
           border: Border.all(color: ThemeColors.white_dull),
         ),
@@ -50,7 +59,9 @@ class ResizeBoxWidget extends StatelessWidget {
                           InputField(
                               default_val: "1200",
                               height: shape_box_height,
-                              width: shape_box_width)
+                              width: shape_box_width,
+                              controller: width_controller,
+                          )
                         ],
                       ),
                       Column(
@@ -61,7 +72,9 @@ class ResizeBoxWidget extends StatelessWidget {
                           InputField(
                               default_val: "800",
                               height: shape_box_height,
-                              width: shape_box_width)
+                              width: shape_box_width,
+                              controller: height_controller,
+                          )
                         ],
                       )
                     ],
@@ -73,7 +86,14 @@ class ResizeBoxWidget extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text("Output size", style: styles.parameters_headings),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text("Output size", style: styles.parameters_headings),
+                          SizedBox(height: 5),
+                          Text("(Output Image will be less than this.)", style: styles.small_information),
+                        ],
+                      ),
                       SizedBox(height: SizeConfig.blockSizeVertical),
                       // output size options size and kb/mb
                       Row(
@@ -82,9 +102,11 @@ class ResizeBoxWidget extends StatelessWidget {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               InputField(
-                                  default_val: "1200",
+                                  default_val: "1024",
                                   height: size_number_height,
-                                  width: size_number_width)
+                                  width: size_number_width,
+                                  controller: output_size_controller,
+                              )
                             ],
                           ),
                           SizedBox(
@@ -96,7 +118,9 @@ class ResizeBoxWidget extends StatelessWidget {
                               InputField(
                                   default_val: "kb",
                                   height: size_type_heigth,
-                                  width: size_type_width)
+                                  width: size_type_width,
+                                  controller: output_size_type_controller,
+                              )
                             ],
                           )
                         ],
@@ -120,6 +144,11 @@ class ResizeBoxWidget extends StatelessWidget {
                           children: <Widget>[
                             Container(
                               child: TabBar(
+                                onTap: (index){
+                                  if (index == 0) im_provider.extension = "png";
+                                  if (index == 1) im_provider.extension = "jpg";
+                                  if (index == 2) im_provider.extension = "pdf";
+                                },
                                 indicatorSize: TabBarIndicatorSize.label,
                                 indicatorColor: ThemeColors.green_main,
                                 // indicator:BoxDecoration(color: ThemeColors.dark_grey),
@@ -155,13 +184,19 @@ class ResizeBoxWidget extends StatelessWidget {
 }
 
 class InputField extends StatelessWidget {
-  InputField({this.default_val, this.height, this.width});
+  InputField({this.default_val, this.height, this.width, this.controller});
   final default_val;
   final height;
   final width;
+  final TextEditingController controller;
+
+  ImageProcessingProvider im_provider;
+
   @override
   Widget build(BuildContext context) {
     var border_radius = 7.0;
+    im_provider = context.read<ImageProcessingProvider>();
+
     return Row(
       children: [
         Container(
@@ -175,6 +210,7 @@ class InputField extends StatelessWidget {
           height: height,
           width: width * 0.7,
           child: TextField(
+            onChanged: (value){onChange(value);},
             cursorColor: ThemeColors.green_main,
             style: styles.place_holder,
             decoration: InputDecoration(
@@ -217,6 +253,17 @@ class InputField extends StatelessWidget {
       ],
     );
   }
+
+  void onChange(value){
+
+    switch(default_val) {
+      case '1200': im_provider.output_image_width = value; return;
+      case '800': im_provider.output_image_height = value; return;
+      case '1024': im_provider.output_image_size = value; return;
+      case 'kb': im_provider.output_image_type = value; return;
+    }
+  }
+
 }
 
 class Button extends StatelessWidget {
