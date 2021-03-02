@@ -40,7 +40,8 @@ class HomePage extends StatelessWidget {
       floatingActionButton: Row(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
-          Button(button_val: "Convert"),
+          if(context.watch<ImageProcessingProvider>().all_files_processed == false)Button(button_val: "Convert"),
+          if(context.watch<ImageProcessingProvider>().all_files_processed == true)Button(button_val: "Clear"),
           if(context.watch<ImageProcessingProvider>().all_files_processed == true) Button(button_val: "Download All"),
         ],
       ),
@@ -63,8 +64,16 @@ class Button extends StatelessWidget {
           side: BorderSide(color: ThemeColors.white_dull)),
       // onPressed: im_provider.loop_files_processing(height, width, size, extension),
       onPressed: ()async{
-        var result = await im_provider.validate_and_process();
-        print(result);
+        if(button_val == "Convert") {
+          var result = await im_provider.validate_and_process();
+          print(result);
+        }
+        else if(button_val == "Clear"){
+          await im_provider.reset();
+        }
+        else if(button_val == "Download All"){
+          await im_provider.share_zip();
+        }
       },
       child: Text(button_val, style: styles.secondary_title),
     );

@@ -1,7 +1,9 @@
 import 'dart:io';
 import 'dart:typed_data';
+import 'package:flutter_archive/flutter_archive.dart';
 import 'package:random_string/random_string.dart';
 import 'package:string_validator/string_validator.dart';
+import 'package:flutter_share/flutter_share.dart';
 
 import 'image_algos.dart';
 import 'package:flutter/material.dart';
@@ -18,6 +20,8 @@ class ImageProcessingProvider extends ChangeNotifier{
   String output_image_size = "1024";
   String output_image_type = "kb";
   String extension = "png";
+
+
   // list containing overlay for individual image;
   List<String> overlay;
   // results : corresponding list of images containing status of processing.
@@ -27,6 +31,8 @@ class ImageProcessingProvider extends ChangeNotifier{
   // failed
   // success;
   List<String> images_status;
+  // list containing the path of output images;
+  List<String> target_paths;
   String error = 'No Error Detected';
   bool all_files_processed = false;
   Directory source_dir;
@@ -36,13 +42,64 @@ class ImageProcessingProvider extends ChangeNotifier{
     return await getTemporaryDirectory();
   }
 
-  Future<void>clean_directory(directory) async{
-    directory.list(recursive: true, followLinks: false)
+  Future<void>clean_directory(Directory directory) async{
+    directory.list(recursive: false, followLinks: false)
         .listen((FileSystemEntity entity) {
-      new File(entity.path).deleteSync();
+          try {
+            entity.deleteSync(recursive: true);
+          }
+          catch(e){
+            print(e);
+          }
     });
   }
-  
+
+  Future<void> share_image(index) async{
+    if(images_status[index] == "success") {
+      try {
+        await FlutterShare.shareFile(
+          title: target_paths[index]
+              .split("/")
+              .last,
+          filePath: target_paths[index],
+        );
+      }
+      catch(e){
+        print(e);
+      }
+    }
+  }
+
+  Future<void> share_zip() async{
+    if(all_files_processed){
+      try {
+        Directory temp_directory = await get_temp_dir();
+        var zip_file = File(path.join(temp_directory.path, "output.zip"));
+        await ZipFile.createFromDirectory(
+            sourceDir: target_dir, zipFile: zip_file, recurseSubDirs: true);
+        await FlutterShare.shareFile(
+          title: "output.zip",
+          filePath: zip_file.path,
+        );
+      } catch (e) {
+        print(e);
+      }
+    }
+  }
+  // reset everything
+  Future<void> reset()async{
+    images.clear();
+    images_status.clear();
+    target_paths.clear();
+    overlay.clear();
+    extension = "png";
+    all_files_processed = false;
+    error = 'No Error Detected';
+    await clean_directory(await get_temp_dir());
+    notifyListeners();
+
+  }
+
   // size should be in bytes.
   Future<List<dynamic>>process_image(source_file, target_path, height, width, size, extension) async{
     // if(index < images.length) 
@@ -85,7 +142,6 @@ class ImageProcessingProvider extends ChangeNotifier{
     source_dir.createSync(recursive: true);
     target_dir.createSync(recursive: true);
 
-
     for (var index = 0; index < images.length; index++){
       images_status[index] = "processing";
       overlay[index] = "processing";
@@ -96,11 +152,12 @@ class ImageProcessingProvider extends ChangeNotifier{
       //have to recheck the logic here.
       var file_name = images[index].name.split(".")[0] + "_" + randomNumeric(4).toString();
       String target_path = path.join(target_dir.path, "$file_name.$extension");
+      target_paths[index] = target_path;
       var processing_result = await process_image(source_file, target_path, height, width, size, extension);
       print(processing_result);
       if(processing_result[0]){
         overlay[index] = "download";
-        images_status[index] = "success'";
+        images_status[index] = "success";
       }
       else{
         overlay[index] = "error";
@@ -156,8 +213,9 @@ class ImageProcessingProvider extends ChangeNotifier{
         ),
       );
       //initialise everything.
-      images_status = List.filled(images.length, "not_processed");
-      overlay = List.filled(images.length, "not_processed");
+      images_status =List<String>.generate(images.length, (int index) => "not_processed");
+      overlay = List<String>.generate(images.length, (int index) => "not_processed");
+      target_paths = List<String>.generate(images.length, (int index) => "");
       all_files_processed = false;
       print(images);
     } on Exception catch (e) {

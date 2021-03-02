@@ -13,6 +13,9 @@ class ImageDisplay extends StatefulWidget {
 
 class _ImageDisplayState extends State<ImageDisplay> {
   List<Asset> images;
+  ImageProcessingProvider im_provider;
+
+
 
   Widget buildGridView(images) {
     return GridView.count(
@@ -38,12 +41,17 @@ class _ImageDisplayState extends State<ImageDisplay> {
               ),
               // download overflow
               if (context.watch<ImageProcessingProvider>().overlay[index] == "download")
-                Padding(
-                  padding: const EdgeInsets.all(10.0),
-                  child: Container(
-                    width: 500,
-                    height: 500,
-                    child: Icon(Icons.download_sharp, size: 40, color: ThemeColors.white_dull,),
+                GestureDetector(
+                  onTap: () async{
+                    await im_provider.share_image(index);
+                  },
+                  child: Padding(
+                    padding: const EdgeInsets.all(10.0),
+                    child: Container(
+                      width: 500,
+                      height: 500,
+                      child: Icon(Icons.download_sharp, size: 40, color: ThemeColors.white_dull,),
+                    ),
                   ),
                 )
               else if (context.watch<ImageProcessingProvider>().overlay[index] == "error")
@@ -80,6 +88,7 @@ class _ImageDisplayState extends State<ImageDisplay> {
 
   @override
   void initState() {
+    im_provider = context.read<ImageProcessingProvider>();
     super.initState();
   }
 

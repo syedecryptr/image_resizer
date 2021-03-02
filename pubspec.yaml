@@ -31,7 +31,9 @@ dependencies:
   provider: ^4.3.3
   filesize: ^1.0.4
   google_fonts: ^1.1.2
+  flutter_share: ^1.0.5
   random_string: ^2.1.0
+  flutter_archive: ^2.0.2
   string_validator: ^0.1.4
   multi_image_picker: ^4.7.15
   flutter_native_image: ^0.0.5

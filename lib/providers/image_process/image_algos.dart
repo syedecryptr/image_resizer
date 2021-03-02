@@ -7,7 +7,7 @@ class Algorithms{
   static Future<List<dynamic>>rescale(File source_file, target_file_path, output_height, output_width) async{
     try {
       File out_file = await FlutterNativeImage.compressImage(source_file.path,
-          targetWidth: output_width, targetHeight: output_height);
+          targetWidth: output_width, targetHeight: output_height, percentage: 100, quality: 100);
       out_file.copySync(target_file_path);
       var out_file_size = source_file.lengthSync();
       out_file.delete();
@@ -31,6 +31,7 @@ class Algorithms{
     var max_desired_quality = maximum_limit_quality;
 
     var desired_quality = ((max_desired_quality + min_desired_quality) ~/ 2).floor();
+    // keeping the byte margin if image size is inside desired_size - bytes_range it will be accepted.
     var bytes_margin = 100*1000;
     var current_size = source_file.lengthSync();
     // if required output size is > input size will see later the expanding of the image.
