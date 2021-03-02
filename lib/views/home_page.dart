@@ -37,7 +37,13 @@ class HomePage extends StatelessWidget {
           ),
         ),
       ),
-      floatingActionButton: Button(button_val: "Convert"),
+      floatingActionButton: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        children: [
+          Button(button_val: "Convert"),
+          if(context.watch<ImageProcessingProvider>().all_files_processed == true) Button(button_val: "Download All"),
+        ],
+      ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
     );
   }

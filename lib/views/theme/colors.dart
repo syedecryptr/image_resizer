@@ -8,4 +8,5 @@ class ThemeColors{
   static const green_main =  const Color(0xff00bc72);
   static const white_main =  const Color(0xffffffff);
   static const white_dull =  Colors.white38;
+  static const red_dull =  const Color(0xffb71c1c);
 }

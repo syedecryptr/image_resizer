@@ -18,15 +18,17 @@ class ImageProcessingProvider extends ChangeNotifier{
   String output_image_size = "1024";
   String output_image_type = "kb";
   String extension = "png";
+  // list containing overlay for individual image;
+  List<String> overlay;
   // results : corresponding list of images containing status of processing.
   // these are the valid status
-  // not_processed;
+  // not_processed (initialised);
   // processing
   // failed
   // success;
   List<String> images_status;
   String error = 'No Error Detected';
-
+  bool all_files_processed = false;
   Directory source_dir;
   Directory target_dir;
 
@@ -86,6 +88,8 @@ class ImageProcessingProvider extends ChangeNotifier{
 
     for (var index = 0; index < images.length; index++){
       images_status[index] = "processing";
+      overlay[index] = "processing";
+      notifyListeners();
       final ByteData data = await images[index].getByteData();
       File source_file = new File(path.join(source_dir.path, images[index].name));
       await source_file.writeAsBytes(data.buffer.asUint8List(data.offsetInBytes, data.lengthInBytes));
@@ -95,11 +99,14 @@ class ImageProcessingProvider extends ChangeNotifier{
       var processing_result = await process_image(source_file, target_path, height, width, size, extension);
       print(processing_result);
       if(processing_result[0]){
+        overlay[index] = "download";
         images_status[index] = "success'";
       }
       else{
+        overlay[index] = "error";
         images_status[index] = "failed";
       }
+      notifyListeners();
     }
   }
 
@@ -129,6 +136,8 @@ class ImageProcessingProvider extends ChangeNotifier{
       output_size = int.parse(output_image_size) * 1000 * 1000;
     }
     await loop_files_processing(int.parse(output_image_height), int.parse(output_image_width), output_size, extension );
+    all_files_processed = true;
+    notifyListeners();
     return [true, "Processing completed"];
   }
 
@@ -146,7 +155,10 @@ class ImageProcessingProvider extends ChangeNotifier{
           selectCircleStrokeColor: "#000000",
         ),
       );
-      images_status = List.filled(10, "not_processed");
+      //initialise everything.
+      images_status = List.filled(images.length, "not_processed");
+      overlay = List.filled(images.length, "not_processed");
+      all_files_processed = false;
       print(images);
     } on Exception catch (e) {
       error = e.toString();

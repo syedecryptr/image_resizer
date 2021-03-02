@@ -13,14 +13,66 @@ class ImageDisplay extends StatefulWidget {
 
 class _ImageDisplayState extends State<ImageDisplay> {
   List<Asset> images;
+
   Widget buildGridView(images) {
     return GridView.count(
       crossAxisCount: 5,
       children: List.generate(images.length, (index) {
+
         Asset asset = images[index];
         return Padding(
           padding: const EdgeInsets.all(1.0),
-          child: thumbnail(thumbnail_val: asset),
+          child: Stack(
+            children: [
+              Container(
+                // dont know what is this but without it icons become small.
+                width: 500,
+                height: 500,
+                child: thumbnail(thumbnail_val: asset),
+              ),
+              //this is overlay transparent
+              Container(
+                width: 500,
+                height: 500,
+                color: Color.fromRGBO(0, 0, 0, 0.5)
+              ),
+              // download overflow
+              if (context.watch<ImageProcessingProvider>().overlay[index] == "download")
+                Padding(
+                  padding: const EdgeInsets.all(10.0),
+                  child: Container(
+                    width: 500,
+                    height: 500,
+                    child: Icon(Icons.download_sharp, size: 40, color: ThemeColors.white_dull,),
+                  ),
+                )
+              else if (context.watch<ImageProcessingProvider>().overlay[index] == "error")
+                Padding(
+                  padding: const EdgeInsets.all(10.0),
+                  child: Container(
+                    width: 500,
+                    height: 500,
+                    child: Icon(Icons.clear_sharp, size: 40, color: ThemeColors.red_dull,),
+                  ),
+                )
+              else if (context.watch<ImageProcessingProvider>().overlay[index] == "processing")
+                  Padding(
+                    padding: const EdgeInsets.all(10.0),
+                    child: Container(
+                      width: 500,
+                      height: 500,
+                      child: SizedBox(
+                          width: 50,
+                          height: 50,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 1 ,
+                            valueColor: AlwaysStoppedAnimation<Color>(ThemeColors.green_main),
+                          )
+                      ),
+                    ),
+                  )
+            ],
+          ),
         );
       }),
     );
