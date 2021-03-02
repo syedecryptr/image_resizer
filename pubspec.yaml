@@ -37,7 +37,7 @@ dependencies:
   string_validator: ^0.1.4
   multi_image_picker: ^4.7.15
   flutter_native_image: ^0.0.5
-  downloads_path_provider: ^0.1.0
+#  downloads_path_provider: ^0.1.0
 
 
 dev_dependencies:
@@ -56,9 +56,9 @@ flutter:
   uses-material-design: true
 
   # To add assets to your application, add an assets section, like this:
-  assets:
-     - assets/pngs/
-     - assets/jpgs/
+#  assets:
+#     - assets/pngs/
+#     - assets/jpgs/
   #   - images/a_dot_burr.jpeg
   #   - images/a_dot_ham.jpeg
 
