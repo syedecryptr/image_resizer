@@ -15,13 +15,13 @@ class ImageProcessingProvider extends ChangeNotifier{
 
 
   List<Asset> images = List<Asset>();
-  String output_image_width = "1200";
-  String output_image_height = "800";
-  String output_image_size = "1024";
-  String output_image_type = "kb";
+  String output_image_width = "";
+  String output_image_height = "";
+  String output_image_size = "";
+  String output_image_type = "";
   String extension = "png";
-
-
+  bool fix_aspect_ratio = true;
+  double aspect_ratio = 1200/800;
   // list containing overlay for individual image;
   List<String> overlay;
   // results : corresponding list of images containing status of processing.
@@ -42,6 +42,36 @@ class ImageProcessingProvider extends ChangeNotifier{
     return await getTemporaryDirectory();
   }
 
+  void set_input_fields(field, value){
+    if(field == "width"){
+      if(fix_aspect_ratio) {
+          output_image_width = value;
+          output_image_height =(int.parse(output_image_width) / aspect_ratio).ceil().toString();
+        }
+      else{
+        output_image_width = value;
+      }
+    }
+
+    if(field == "height"){
+      if(fix_aspect_ratio) {
+        output_image_height = value;
+        output_image_width = (int.parse(output_image_height)*aspect_ratio).ceil().toString();
+      }
+      else{
+        output_image_height = value;
+      }
+    }
+    if(field == "image_size"){
+      output_image_size = value;
+    }
+    if(field == "image_size_type"){
+      output_image_type = value;
+    }
+    notifyListeners();
+
+  }
+
   Future<void>clean_directory(Directory directory) async{
     directory.list(recursive: false, followLinks: false)
         .listen((FileSystemEntity entity) {
@@ -52,6 +82,15 @@ class ImageProcessingProvider extends ChangeNotifier{
             print(e);
           }
     });
+  }
+
+  handle_aspect_ratio(){
+    fix_aspect_ratio = !fix_aspect_ratio;
+    notifyListeners();
+  }
+
+  set_extension(value){
+    extension = value;
   }
 
   Future<void> share_image(index) async{
@@ -95,6 +134,10 @@ class ImageProcessingProvider extends ChangeNotifier{
     extension = "png";
     all_files_processed = false;
     error = 'No Error Detected';
+    output_image_width = "";
+    output_image_height = "";
+    output_image_size = "";
+    output_image_type = "";
     await clean_directory(await get_temp_dir());
     notifyListeners();
 
@@ -103,8 +146,9 @@ class ImageProcessingProvider extends ChangeNotifier{
   // size should be in bytes.
   Future<List<dynamic>>process_image(source_file, target_path, height, width, size, extension) async{
     // if(index < images.length) 
-
+      print("desired size = $size");
       var returned_size_after_rescaling = await Algorithms.rescale(source_file, target_path, height, width);
+      print("returned after rescaling = $returned_size_after_rescaling");
       if(returned_size_after_rescaling[0]) {
         if (returned_size_after_rescaling[1] < size){
           return [true, returned_size_after_rescaling[1]];
@@ -152,6 +196,7 @@ class ImageProcessingProvider extends ChangeNotifier{
       //have to recheck the logic here.
       var file_name = images[index].name.split(".")[0] + "_" + randomNumeric(4).toString();
       String target_path = path.join(target_dir.path, "$file_name.$extension");
+      print(target_path);
       target_paths[index] = target_path;
       var processing_result = await process_image(source_file, target_path, height, width, size, extension);
       print(processing_result);
@@ -174,13 +219,13 @@ class ImageProcessingProvider extends ChangeNotifier{
     // }
     // check validation for fields.
     if(images.isEmpty){
-      return [false, "Upload the image(s) first."];
+      return [false, "Select the image(s) first."];
     }
-    if(!isInt(output_image_width) || int.parse(output_image_width) > 3840 || int.parse(output_image_height) < 0){
-      return [false, "Height should be a number in between 0 and 3840"];
+    if(!isInt(output_image_width) || int.parse(output_image_width) > 8000 || int.parse(output_image_height) < 0){
+      return [false, "Width should be a number in between 0 and 8000"];
     }
-    if(!isInt(output_image_height) || int.parse(output_image_height) > 2160 || int.parse(output_image_height) < 0){
-      return [false, "Height should be a number in between 0 and 2160"];
+    if(!isInt(output_image_height) || int.parse(output_image_height) > 4000 || int.parse(output_image_height) < 0){
+      return [false, "Height should be a number in between 0 and 4000"];
     }
     if(output_image_type != "kb" && output_image_type !="mb"){
       return [false, "Image type should be kb or mb."];
@@ -217,6 +262,12 @@ class ImageProcessingProvider extends ChangeNotifier{
       overlay = List<String>.generate(images.length, (int index) => "not_processed");
       target_paths = List<String>.generate(images.length, (int index) => "");
       all_files_processed = false;
+      output_image_width = images[0].originalWidth.toString();
+      output_image_height = images[0].originalHeight.toString();
+      output_image_type = "kb";
+      output_image_size = "1024";
+      aspect_ratio = images[0].originalWidth / images[0].originalHeight;
+      print("aspect ratio $aspect_ratio");
       print(images);
     } on Exception catch (e) {
       error = e.toString();

@@ -7,8 +7,14 @@ import 'package:image_resizer/views/theme/colors.dart';
 import 'package:image_resizer/views/theme/size_config.dart';
 import 'package:image_resizer/views/theme/text_format.dart';
 
-class ResizeBoxWidget extends StatelessWidget {
+class ResizeBoxWidget extends StatefulWidget {
+  @override
+  _ResizeBoxWidgetState createState() => _ResizeBoxWidgetState();
+}
+
+class _ResizeBoxWidgetState extends State<ResizeBoxWidget> {
   ImageProcessingProvider im_provider;
+
   var width_controller = TextEditingController();
   var height_controller = TextEditingController();
   var output_size_controller = TextEditingController();
@@ -24,12 +30,25 @@ class ResizeBoxWidget extends StatelessWidget {
   var size_type_width = SizeConfig.blockSizeHorizontal * 15;
   var size_type_heigth = SizeConfig.blockSizeVertical * 4;
 
+  @override
+  void initState() {
+    im_provider = context.read<ImageProcessingProvider>();
+
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
     SizeConfig().init(context);
-    im_provider = context.read<ImageProcessingProvider>();
 
+    width_controller.text = context.watch<ImageProcessingProvider>().output_image_width;
+    height_controller.text = context.watch<ImageProcessingProvider>().output_image_height;
+    output_size_controller.text = context.watch<ImageProcessingProvider>().output_image_size;
+    output_size_type_controller.text = context.watch<ImageProcessingProvider>().output_image_type;
+    width_controller.selection = TextSelection.fromPosition(TextPosition(offset: width_controller.text.length));
+    height_controller.selection = TextSelection.fromPosition(TextPosition(offset: height_controller.text.length));
+    output_size_controller.selection = TextSelection.fromPosition(TextPosition(offset: output_size_controller.text.length));
+    output_size_type_controller.selection = TextSelection.fromPosition(TextPosition(offset: output_size_type_controller.text.length));
     return Container(
         // padding: EdgeInsets.all(padding),
         width: width,
@@ -62,6 +81,34 @@ class ResizeBoxWidget extends StatelessWidget {
                               width: shape_box_width,
                               controller: width_controller,
                           )
+                        ],
+                      ),
+                      // Container(
+                      //   padding: EdgeInsets.fromLTRB(0, SizeConfig.blockSizeVertical*4, 0, 0),
+                      //   child: Icon(Icons.aspect_ratio_sharp),
+                      // ),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text("", style: styles.parameters_headings),
+                          SizedBox(height: SizeConfig.blockSizeVertical),
+                          if(context.watch<ImageProcessingProvider>().fix_aspect_ratio)GestureDetector(
+                              onTap: (){
+                                im_provider.handle_aspect_ratio();
+                              },
+                              child: Icon(
+                                Icons.aspect_ratio_sharp,
+                                color: ThemeColors.green_main
+                            ),
+                          ),
+                          if(!context.watch<ImageProcessingProvider>().fix_aspect_ratio)GestureDetector(
+                              onTap: (){
+                                im_provider.handle_aspect_ratio();
+                              },
+                              child: Icon(
+                                Icons.aspect_ratio_sharp,
+                                color: ThemeColors.white_dull.withOpacity(0.4),)
+                          ),
                         ],
                       ),
                       Column(
@@ -145,9 +192,10 @@ class ResizeBoxWidget extends StatelessWidget {
                             Container(
                               child: TabBar(
                                 onTap: (index){
-                                  if (index == 0) im_provider.extension = "png";
-                                  if (index == 1) im_provider.extension = "jpg";
-                                  if (index == 2) im_provider.extension = "pdf";
+                                  print(index);
+                                  if (index == 0) im_provider.set_extension("png");
+                                  if (index == 1) im_provider.set_extension("jpg");
+                                  if (index == 2) im_provider.set_extension("pdf");
                                 },
                                 indicatorSize: TabBarIndicatorSize.label,
                                 indicatorColor: ThemeColors.green_main,
@@ -156,17 +204,17 @@ class ResizeBoxWidget extends StatelessWidget {
                                   Tab(
                                       child: Text(
                                     'PNG',
-                                    style: styles.place_holder,
+                                    style: styles.input_value,
                                   )),
                                   Tab(
                                       child: Text(
                                     'JPEG',
-                                    style: styles.place_holder,
+                                    style: styles.input_value,
                                   )),
                                   Tab(
                                       child: Text(
                                     'PDF',
-                                    style: styles.place_holder,
+                                    style: styles.input_value,
                                   )),
                                 ],
                               ),
@@ -210,9 +258,10 @@ class InputField extends StatelessWidget {
           height: height,
           width: width * 0.7,
           child: TextField(
+            controller: controller,
             onChanged: (value){onChange(value);},
             cursorColor: ThemeColors.green_main,
-            style: styles.place_holder,
+            style: styles.input_value,
             decoration: InputDecoration(
                 isDense: true,
                 border: InputBorder.none,
@@ -257,8 +306,8 @@ class InputField extends StatelessWidget {
   void onChange(value){
 
     switch(default_val) {
-      case '1200': im_provider.output_image_width = value; return;
-      case '800': im_provider.output_image_height = value; return;
+      case '1200': im_provider.set_input_fields("width", value); return;
+      case '800': im_provider.set_input_fields("height", value); return;
       case '1024': im_provider.output_image_size = value; return;
       case 'kb': im_provider.output_image_type = value; return;
     }
