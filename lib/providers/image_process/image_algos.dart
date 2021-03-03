@@ -9,7 +9,7 @@ class Algorithms{
       File out_file = await FlutterNativeImage.compressImage(source_file.path,
           targetWidth: output_width, targetHeight: output_height, percentage: 100, quality: 100);
       out_file.copySync(target_file_path);
-      var out_file_size = source_file.lengthSync();
+      var out_file_size = out_file.lengthSync();
       out_file.delete();
       return [true, out_file_size];
     }
@@ -43,7 +43,7 @@ class Algorithms{
     // assuming the largest this variable could be when current size = 0
     // smallest_curernt_size_dif_output_size = output_size - current_size
     // making it largest so while iteration we can track the smallest value it reaches.
-    var smallest_curernt_size_closeto_output_size = output_size - 0;
+    var smallest_current_size_closestto_output_size = output_size - 0;
     var optimal_size ;
     var optimal_desired_quality;
     print("current file size: ${filesize(current_size)}");
@@ -59,8 +59,8 @@ class Algorithms{
       current_size = out_file.lengthSync();
 
       // this fix is because in the library many times quality decreasing not implies size decreasing.
-      if(smallest_curernt_size_closeto_output_size > output_size - current_size){
-        smallest_curernt_size_closeto_output_size =  output_size - current_size;
+      if(smallest_current_size_closestto_output_size > output_size - current_size && output_size > current_size){
+        smallest_current_size_closestto_output_size =  output_size - current_size;
         optimal_size = current_size;
         optimal_desired_quality = desired_quality;
       }
@@ -80,7 +80,7 @@ class Algorithms{
 
       print("desired_quality = $desired_quality, min_desired_quality = $min_desired_quality max_desired_quality = $max_desired_quality current_size = ${(current_size)}, output_size = ${(output_size)}");
     }
-
+    print("current size $current_size output size $output_size optimal size $optimal_size");
     if(current_size > output_size){
       if(optimal_size < output_size){
         out_file = await FlutterNativeImage.compressImage(source_file.path,
@@ -88,6 +88,9 @@ class Algorithms{
         out_file.copySync(target_file_path);
         return [true, optimal_size];
       }
+      // even after this desired size is not reached force it three times on the output
+
+      // return await binary_selection(out_file, target_file_path, output_size, output_extension);
       return [false, "smallest size we can achieve is ${filesize(current_size)}"];
     }
     out_file.copySync(target_file_path);
