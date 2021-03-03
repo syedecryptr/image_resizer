@@ -4,7 +4,7 @@ import 'package:flutter_archive/flutter_archive.dart';
 import 'package:random_string/random_string.dart';
 import 'package:string_validator/string_validator.dart';
 import 'package:flutter_share/flutter_share.dart';
-
+import 'package:pdf/widgets.dart' as pw;
 import 'image_algos.dart';
 import 'package:flutter/material.dart';
 import 'package:path/path.dart' as path;
@@ -22,6 +22,7 @@ class ImageProcessingProvider extends ChangeNotifier{
   String extension = "png";
   bool fix_aspect_ratio = true;
   double aspect_ratio = 1200/800;
+  pw.Document final_pdf;
   // list containing overlay for individual image;
   List<String> overlay;
   // results : corresponding list of images containing status of processing.
@@ -40,6 +41,35 @@ class ImageProcessingProvider extends ChangeNotifier{
 
   Future<Directory> get_temp_dir() async{
     return await getTemporaryDirectory();
+  }
+
+  Future<List<dynamic>> save_to_pdf(File image_file, String target_path)async{
+    try {
+      final pdf_image = pw.Document();
+      final image = pw.MemoryImage(
+        image_file.readAsBytesSync(),
+      );
+      final image2 = pw.MemoryImage(
+        image_file.readAsBytesSync(),
+      );
+      final_pdf.addPage(pw.Page(build: (pw.Context context) {
+        return pw.Center(
+          child: pw.Image(image2),
+        ); // Center
+      })); // Page
+      pdf_image.addPage(pw.Page(build: (pw.Context context) {
+        return pw.Center(
+          child: pw.Image(image),
+        ); // Center
+      })); // Page
+
+      final file = File(target_path);
+      await file.writeAsBytes(await pdf_image.save());
+      return [true, file.lengthSync()];
+    }
+    catch(e){
+      return [false, e.toString()];
+    }
   }
 
   void set_input_fields(field, value){
@@ -113,13 +143,25 @@ class ImageProcessingProvider extends ChangeNotifier{
     if(all_files_processed){
       try {
         Directory temp_directory = await get_temp_dir();
-        var zip_file = File(path.join(temp_directory.path, "output.zip"));
-        await ZipFile.createFromDirectory(
-            sourceDir: target_dir, zipFile: zip_file, recurseSubDirs: true);
-        await FlutterShare.shareFile(
-          title: "output.zip",
-          filePath: zip_file.path,
-        );
+
+        if(extension == "pdf"){
+          var pdf_combined = File(path.join(temp_directory.path, "output.pdf"));
+          await pdf_combined.writeAsBytes(await final_pdf.save());
+
+          await FlutterShare.shareFile(
+            title: "output.pdf",
+            filePath: pdf_combined.path,
+          );
+        }
+        else {
+          var zip_file = File(path.join(temp_directory.path, "output.zip"));
+          await ZipFile.createFromDirectory(
+              sourceDir: target_dir, zipFile: zip_file, recurseSubDirs: true);
+          await FlutterShare.shareFile(
+            title: "output.zip",
+            filePath: zip_file.path,
+          );
+        }
       } catch (e) {
         print(e);
       }
@@ -172,6 +214,7 @@ class ImageProcessingProvider extends ChangeNotifier{
 
   Future<void>loop_files_processing(height, width, size, extension) async{
     Directory temp_dir = await get_temp_dir();
+    List<dynamic> processing_result;
     source_dir = new Directory(path.join(temp_dir.path, "input"));
     target_dir = new Directory(path.join(temp_dir.path, "output"));
     // Recreate them if exists.
@@ -185,21 +228,34 @@ class ImageProcessingProvider extends ChangeNotifier{
     // create the directories
     source_dir.createSync(recursive: true);
     target_dir.createSync(recursive: true);
-
+    if(extension == "pdf"){
+      final_pdf = pw.Document();
+    }
     for (var index = 0; index < images.length; index++){
       images_status[index] = "processing";
       overlay[index] = "processing";
       notifyListeners();
       final ByteData data = await images[index].getByteData();
-      File source_file = new File(path.join(source_dir.path, images[index].name));
-      await source_file.writeAsBytes(data.buffer.asUint8List(data.offsetInBytes, data.lengthInBytes));
-      //have to recheck the logic here.
+
+      File source_file = new File(
+          path.join(source_dir.path, images[index].name));
+      await source_file.writeAsBytes(
+          data.buffer.asUint8List(data.offsetInBytes, data.lengthInBytes));
+
       var file_name = images[index].name.split(".")[0] + "_" + randomNumeric(4).toString();
       String target_path = path.join(target_dir.path, "$file_name.$extension");
-      print(target_path);
       target_paths[index] = target_path;
-      var processing_result = await process_image(source_file, target_path, height, width, size, extension);
-      print(processing_result);
+
+      // if extension is pdf
+      if(extension == "pdf") {
+        processing_result = await save_to_pdf(
+            source_file, target_path);
+      }
+      else {
+        processing_result = await process_image(
+            source_file, target_path, height, width, size, extension);
+        print(processing_result);
+      }
       if(processing_result[0]){
         overlay[index] = "download";
         images_status[index] = "success";
