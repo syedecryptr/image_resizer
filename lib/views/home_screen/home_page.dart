@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:image_resizer/providers/image_process/image_processor.dart';
@@ -32,7 +34,8 @@ class HomePage extends StatelessWidget {
               SizedBox(height: SizeConfig.blockSizeVertical*2,),
               Center(child: ResizeBoxWidget()),
               SizedBox(height: SizeConfig.blockSizeVertical*2,),
-              ImageDisplay()
+              ImageDisplay(),
+              SizedBox(height: SizeConfig.blockSizeVertical*3,),
             ],
           ),
         ),
@@ -40,9 +43,10 @@ class HomePage extends StatelessWidget {
       floatingActionButton: Row(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
-          if(context.watch<ImageProcessingProvider>().all_files_processed == false)Button(button_val: "Convert"),
-          if(context.watch<ImageProcessingProvider>().all_files_processed == true)Button(button_val: "Clear"),
-          if(context.watch<ImageProcessingProvider>().all_files_processed == true) Button(button_val: "Download All"),
+          if(context.watch<ImageProcessingProvider>().images.isNotEmpty && !context.watch<ImageProcessingProvider>().all_files_processed)Button(button_val: "Clear"),
+          if(!context.watch<ImageProcessingProvider>().all_files_processed)Button(button_val: "Convert"),
+          if(context.watch<ImageProcessingProvider>().all_files_processed)Button(button_val: "Clear"),
+          if(context.watch<ImageProcessingProvider>().all_files_processed) Button(button_val: "Download All"),
         ],
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
@@ -63,9 +67,16 @@ class Button extends StatelessWidget {
           borderRadius: new BorderRadius.circular(5.0),
           side: BorderSide(color: ThemeColors.white_dull)),
       // onPressed: im_provider.loop_files_processing(height, width, size, extension),
-      onPressed: ()async{
+      onPressed: () async{
         if(button_val == "Convert") {
           var result = await im_provider.validate_and_process();
+          final snackBar = SnackBar(
+              content: Text(result[1], style: styles.input_value, textAlign: TextAlign.center,),
+              backgroundColor: ThemeColors.grey_main,
+              behavior: SnackBarBehavior.floating,
+              elevation: 0,
+          );
+          Scaffold.of(context).showSnackBar(snackBar);
           print(result);
         }
         else if(button_val == "Clear"){
@@ -78,5 +89,4 @@ class Button extends StatelessWidget {
       child: Text(button_val, style: styles.secondary_title),
     );
   }
-
 }

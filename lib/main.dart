@@ -1,7 +1,7 @@
 import 'package:image_resizer/providers/image_process/image_processor.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter/material.dart';
-import 'package:image_resizer/views/home_page.dart';
+import 'package:image_resizer/views/home_screen/home_page.dart';
 
 void main() {
   var initial_route = "/home_screen";
