@@ -26,7 +26,7 @@ class Button extends StatelessWidget {
           borderRadius: new BorderRadius.circular(5.0),
           side: BorderSide(color: ThemeColors.white_dull)),
       onPressed: im_provider.loadAssets,
-      child: Text(button_val, style: styles.secondary_title),
+      child: Text(button_val, style: styles.primary_title),
     );
   }
 

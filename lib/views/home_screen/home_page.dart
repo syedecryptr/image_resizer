@@ -30,7 +30,7 @@ class HomePage extends StatelessWidget {
             children: [
               Center(child: ImagePickerSection()),
               SizedBox(height: SizeConfig.blockSizeVertical*4,),
-              Text("Edit your image", style: styles.secondary_title,),
+              Text("Edit your image", style: styles.primary_title,),
               SizedBox(height: SizeConfig.blockSizeVertical*2,),
               Center(child: ResizeBoxWidget()),
               SizedBox(height: SizeConfig.blockSizeVertical*2,),
@@ -86,7 +86,7 @@ class Button extends StatelessWidget {
           await im_provider.share_zip();
         }
       },
-      child: Text(button_val, style: styles.secondary_title),
+      child: Text(button_val, style: styles.primary_title),
     );
   }
 }

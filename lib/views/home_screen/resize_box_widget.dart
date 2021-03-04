@@ -165,6 +165,15 @@ class _ResizeBoxWidgetState extends State<ResizeBoxWidget> {
                             children: [
                               new DropdownButton<String>(
                                 hint: Text("kb", style: styles.place_holder,),
+                                underline: Container(
+                                  decoration: const BoxDecoration(
+                                    border: Border(
+                                      bottom: BorderSide(
+                                        color: ThemeColors.grey_main,
+                                      ),
+                                    ),
+                                  ),
+                                ),
                                 value: output_size_type,
                                 elevation: 8,
                                 dropdownColor: ThemeColors.grey_main,
