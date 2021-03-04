@@ -29,10 +29,11 @@ class _ResizeBoxWidgetState extends State<ResizeBoxWidget> {
   var size_number_height = SizeConfig.blockSizeVertical * 4;
   var size_type_width = SizeConfig.blockSizeHorizontal * 15;
   var size_type_heigth = SizeConfig.blockSizeVertical * 4;
-
+  String output_size_type;
   @override
   void initState() {
     im_provider = context.read<ImageProcessingProvider>();
+    output_size_type = "kb";
 
     super.initState();
   }
@@ -40,11 +41,11 @@ class _ResizeBoxWidgetState extends State<ResizeBoxWidget> {
   @override
   Widget build(BuildContext context) {
     SizeConfig().init(context);
-
+    output_size_type = context.watch<ImageProcessingProvider>().output_image_type;
     width_controller.text = context.watch<ImageProcessingProvider>().output_image_width;
     height_controller.text = context.watch<ImageProcessingProvider>().output_image_height;
     output_size_controller.text = context.watch<ImageProcessingProvider>().output_image_size;
-    output_size_type_controller.text = context.watch<ImageProcessingProvider>().output_image_type;
+    // output_size_type_controller.text = context.watch<ImageProcessingProvider>().output_image_type;
     width_controller.selection = TextSelection.fromPosition(TextPosition(offset: width_controller.text.length));
     height_controller.selection = TextSelection.fromPosition(TextPosition(offset: height_controller.text.length));
     output_size_controller.selection = TextSelection.fromPosition(TextPosition(offset: output_size_controller.text.length));
@@ -162,12 +163,30 @@ class _ResizeBoxWidgetState extends State<ResizeBoxWidget> {
                           Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              InputField(
-                                  default_val: "kb",
-                                  height: size_type_heigth,
-                                  width: size_type_width,
-                                  controller: output_size_type_controller,
-                              )
+                              new DropdownButton<String>(
+                                hint: Text("kb", style: styles.place_holder,),
+                                value: output_size_type,
+                                elevation: 8,
+                                dropdownColor: ThemeColors.grey_main,
+                                items: <String>['kb', 'mb'].map((String value) {
+                                  return new DropdownMenuItem<String>(
+                                    value: value,
+                                    child: new Text(value, style: styles.place_holder,),
+                                  );
+                                }).toList(),
+                                onChanged: (newValue) {
+                                  setState(() {
+                                    output_size_type = newValue;
+                                    im_provider.output_image_type = newValue;
+                                  });
+                                },
+                              ),
+                              // InputField(
+                              //     default_val: "kb",
+                              //     height: size_type_heigth,
+                              //     width: size_type_width,
+                              //     controller: output_size_type_controller,
+                              // )
                             ],
                           )
                         ],

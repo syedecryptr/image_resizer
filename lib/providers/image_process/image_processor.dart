@@ -18,7 +18,7 @@ class ImageProcessingProvider extends ChangeNotifier{
   String output_image_width = "";
   String output_image_height = "";
   String output_image_size = "";
-  String output_image_type = "";
+  String output_image_type = "kb";
   String extension = "png";
   bool fix_aspect_ratio = true;
   double aspect_ratio = 1200/800;
@@ -179,7 +179,7 @@ class ImageProcessingProvider extends ChangeNotifier{
     output_image_width = "";
     output_image_height = "";
     output_image_size = "";
-    output_image_type = "";
+    output_image_type = "kb";
     await clean_directory(await get_temp_dir());
     notifyListeners();
 
@@ -293,6 +293,7 @@ class ImageProcessingProvider extends ChangeNotifier{
     else if(output_image_type == "mb"){
       output_size = int.parse(output_image_size) * 1000 * 1000;
     }
+    print(output_image_type);
     await loop_files_processing(int.parse(output_image_height), int.parse(output_image_width), output_size, extension );
     all_files_processed = true;
     notifyListeners();
