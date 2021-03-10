@@ -7,7 +7,7 @@ Concept I found on [dribble](https://dribbble.com/shots/6846135-Image-Photo-Edit
 Star⭐ the repo if you like what you see😉.
 
 
-<a href="https://play.google.com/store/apps/details?id=com.syed.image_resizer"><img src="ss/2.png" ></img></a>
+<a href="https://play.google.com/store/apps/details?id=com.syed.image_resizer"><img src="ss/2.png" width="400" ></img></a>
 
 
 ## ✨ Features
