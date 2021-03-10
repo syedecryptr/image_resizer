@@ -50,6 +50,6 @@ Star⭐ the repo if you like what you see😉.
 **Syed Afshan** [![Twitter Follow](https://img.shields.io/twitter/follow/decryptr_syed.svg?style=social)](https://twitter.com/decryptr_syed)
 
 ## 🍴 Readme
-Forked from **Festus Olusegum**(https://github.com/JideGuru)
+Forked from [**Festus Olusegum**](https://github.com/JideGuru)
 ## 🔖 LICENCE
 [WTFPL](http://www.wtfpl.net/about/)
