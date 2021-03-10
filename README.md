@@ -26,12 +26,14 @@ Star⭐ the repo if you like what you see😉.
 
 
 ## 📸 ScreenShots
-
-<img src="ss/3.jpeg"/>
-<img src="ss/4.jpeg"/>
-<img src="ss/5.jpeg"/>
-<img src="ss/6.jpeg"/>
-
+<p float="left">
+  <img src="ss/3.jpeg" width="200" />
+  <img src="ss/4.jpeg" width="200" /> 
+</p>
+<p float="left">
+  <img src="ss/5.jpeg" width="200" />
+  <img src="ss/6.jpeg" width="200" /> 
+</p>
 
 ## 🔌 Plugins
 
