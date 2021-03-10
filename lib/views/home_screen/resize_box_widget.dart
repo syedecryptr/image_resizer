@@ -78,7 +78,6 @@ class _ResizeBoxWidgetState extends State<ResizeBoxWidget> {
                           SizedBox(height: SizeConfig.blockSizeVertical),
                           InputField(
                               default_val: "1200",
-                              height: shape_box_height,
                               width: shape_box_width,
                               controller: width_controller,
                           )
@@ -119,7 +118,6 @@ class _ResizeBoxWidgetState extends State<ResizeBoxWidget> {
                           SizedBox(height: SizeConfig.blockSizeVertical),
                           InputField(
                               default_val: "800",
-                              height: shape_box_height,
                               width: shape_box_width,
                               controller: height_controller,
                           )
@@ -151,7 +149,6 @@ class _ResizeBoxWidgetState extends State<ResizeBoxWidget> {
                             children: [
                               InputField(
                                   default_val: "1024",
-                                  height: size_number_height,
                                   width: size_number_width,
                                   controller: output_size_controller,
                               )
@@ -260,9 +257,8 @@ class _ResizeBoxWidgetState extends State<ResizeBoxWidget> {
 }
 
 class InputField extends StatelessWidget {
-  InputField({this.default_val, this.height, this.width, this.controller});
+  InputField({this.default_val, this.width, this.controller});
   final default_val;
-  final height;
   final width;
   final TextEditingController controller;
 
@@ -283,7 +279,7 @@ class InputField extends StatelessWidget {
                 topLeft: Radius.circular(border_radius),
                 bottomLeft: Radius.circular(border_radius)),
           ),
-          height: height,
+          height: 35,
           width: width * 0.7,
           child: TextField(
             controller: controller,
@@ -306,7 +302,7 @@ class InputField extends StatelessWidget {
                 topRight: Radius.circular(border_radius),
                 bottomRight: Radius.circular(border_radius)),
           ),
-          height: height,
+          height: 35,
           width: width * 0.3,
           child: Stack(
             children: [
