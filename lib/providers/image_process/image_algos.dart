@@ -21,7 +21,7 @@ class Algorithms{
 
   static Future<List<dynamic>>binary_selection(File source_file, target_file_path, output_size, output_extension) async{
     // this is the output file.
-    File out_file;
+    late File out_file;
 
     var lower_limit_quality = 1;
     var maximum_limit_quality = 100;
@@ -45,7 +45,7 @@ class Algorithms{
     // making it largest so while iteration we can track the smallest value it reaches.
     var smallest_current_size_closestto_output_size = output_size - 0;
     var optimal_size ;
-    var optimal_desired_quality;
+    late var optimal_desired_quality;
     print("current file size: ${filesize(current_size)}");
 
 

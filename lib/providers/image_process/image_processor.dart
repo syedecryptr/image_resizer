@@ -2,8 +2,8 @@ import 'dart:io';
 import 'dart:typed_data';
 import 'package:flutter_archive/flutter_archive.dart';
 import 'package:random_string/random_string.dart';
+import 'package:share/share.dart';
 import 'package:string_validator/string_validator.dart';
-import 'package:flutter_share/flutter_share.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'image_algos.dart';
 import 'package:flutter/material.dart';
@@ -14,30 +14,30 @@ import 'package:multi_image_picker/multi_image_picker.dart';
 class ImageProcessingProvider extends ChangeNotifier{
 
 
-  List<Asset> images = List<Asset>();
+  List<Asset> images = [];
   String output_image_width = "";
   String output_image_height = "";
   String output_image_size = "";
-  String output_image_type = "kb";
+  String? output_image_type = "kb";
   String extension = "png";
   bool fix_aspect_ratio = true;
   double aspect_ratio = 1200/800;
-  pw.Document final_pdf;
+  late pw.Document final_pdf;
   // list containing overlay for individual image;
-  List<String> overlay;
+  late List<String> overlay;
   // results : corresponding list of images containing status of processing.
   // these are the valid status
   // not_processed (initialised);
   // processing
   // failed
   // success;
-  List<String> images_status;
+  late List<String> images_status;
   // list containing the path of output images;
-  List<String> target_paths;
+  late List<String> target_paths;
   String error = 'No Error Detected';
   bool all_files_processed = false;
-  Directory source_dir;
-  Directory target_dir;
+  late Directory source_dir;
+  late Directory target_dir;
 
   Future<Directory> get_temp_dir() async{
     return await getTemporaryDirectory();
@@ -126,11 +126,9 @@ class ImageProcessingProvider extends ChangeNotifier{
   Future<void> share_image(index) async{
     if(images_status[index] == "success") {
       try {
-        await FlutterShare.shareFile(
-          title: target_paths[index]
-              .split("/")
-              .last,
-          filePath: target_paths[index],
+        await Share.shareFiles([target_paths[index]], text: target_paths[index]
+            .split("/")
+            .last
         );
       }
       catch(e){
@@ -147,19 +145,14 @@ class ImageProcessingProvider extends ChangeNotifier{
         if(extension == "pdf"){
           var pdf_combined = File(path.join(temp_directory.path, "output.pdf"));
           await pdf_combined.writeAsBytes(await final_pdf.save());
+          await Share.shareFiles([pdf_combined.path], text: "output.pdf");
 
-          await FlutterShare.shareFile(
-            title: "output.pdf",
-            filePath: pdf_combined.path,
-          );
         }
         else {
           var zip_file = File(path.join(temp_directory.path, "output.zip"));
           await ZipFile.createFromDirectory(
               sourceDir: target_dir, zipFile: zip_file, recurseSubDirs: true);
-          await FlutterShare.shareFile(
-            title: "output.zip",
-            filePath: zip_file.path,
+          await Share.shareFiles([zip_file.path], text: "output.zip"
           );
         }
       } catch (e) {
@@ -242,7 +235,7 @@ class ImageProcessingProvider extends ChangeNotifier{
       await source_file.writeAsBytes(
           data.buffer.asUint8List(data.offsetInBytes, data.lengthInBytes));
 
-      var file_name = images[index].name.split(".")[0] + "_" + randomNumeric(4).toString();
+      var file_name = images[index].name!.split(".")[0] + "_" + randomNumeric(4).toString();
       String target_path = path.join(target_dir.path, "$file_name.$extension");
       target_paths[index] = target_path;
 
@@ -286,7 +279,7 @@ class ImageProcessingProvider extends ChangeNotifier{
     if(output_image_type != "kb" && output_image_type !="mb"){
       return [false, "Image type should be kb or mb."];
     }
-    int output_size;
+    int? output_size;
     if(output_image_type == "kb"){
       output_size = int.parse(output_image_size) * 1000;
     }
@@ -323,7 +316,7 @@ class ImageProcessingProvider extends ChangeNotifier{
       output_image_height = images[0].originalHeight.toString();
       output_image_type = "kb";
       output_image_size = "1024";
-      aspect_ratio = images[0].originalWidth / images[0].originalHeight;
+      aspect_ratio = images[0].originalWidth! / images[0].originalHeight!;
       print("aspect ratio $aspect_ratio");
       print(images);
     } on Exception catch (e) {

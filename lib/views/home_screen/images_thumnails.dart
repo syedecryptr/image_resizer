@@ -12,8 +12,8 @@ class ImageDisplay extends StatefulWidget {
 }
 
 class _ImageDisplayState extends State<ImageDisplay> {
-  List<Asset> images;
-  ImageProcessingProvider im_provider;
+  late List<Asset> images;
+  late ImageProcessingProvider im_provider;
 
 
 
@@ -22,7 +22,7 @@ class _ImageDisplayState extends State<ImageDisplay> {
       crossAxisCount: 5,
       children: List.generate(images.length, (index) {
 
-        Asset asset = images[index];
+        Asset? asset = images[index];
         return Padding(
           padding: const EdgeInsets.all(1.0),
           child: Stack(
@@ -107,11 +107,11 @@ class _ImageDisplayState extends State<ImageDisplay> {
 
 class thumbnail extends StatelessWidget {
   thumbnail({this.thumbnail_val});
-  Asset thumbnail_val;
+  Asset? thumbnail_val;
   @override
   Widget build(BuildContext context) {
     return AssetThumb(
-      asset: thumbnail_val,
+      asset: thumbnail_val!,
       width: 50,
       height: 50,
       quality: 10,

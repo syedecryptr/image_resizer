@@ -4,6 +4,7 @@ import 'package:image_resizer/views/theme/text_format.dart';
 import 'package:image_resizer/views/theme/colors.dart';
 import 'package:provider/provider.dart';
 class ImagePickerSection extends StatelessWidget {
+  ImagePickerSection();
 
   @override
   Widget build(BuildContext context) {
@@ -15,7 +16,6 @@ class ImagePickerSection extends StatelessWidget {
 
 class Button extends StatelessWidget {
   var button_val;
-
   Button({this.button_val});
 
   @override

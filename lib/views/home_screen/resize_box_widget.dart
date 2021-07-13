@@ -13,23 +13,23 @@ class ResizeBoxWidget extends StatefulWidget {
 }
 
 class _ResizeBoxWidgetState extends State<ResizeBoxWidget> {
-  ImageProcessingProvider im_provider;
+  late ImageProcessingProvider im_provider;
 
   var width_controller = TextEditingController();
   var height_controller = TextEditingController();
   var output_size_controller = TextEditingController();
   var output_size_type_controller = TextEditingController();
 
-  var height = SizeConfig.blockSizeVertical * 40;
+  var height = SizeConfig.blockSizeVertical! * 40;
   var width = SizeConfig.blockSizeHorizontal * 90;
   var padding = SizeConfig.blockSizeHorizontal * 5;
   var shape_box_width = SizeConfig.blockSizeHorizontal * 30;
-  var shape_box_height = SizeConfig.blockSizeVertical * 4;
+  var shape_box_height = SizeConfig.blockSizeVertical! * 4;
   var size_number_width = SizeConfig.blockSizeHorizontal * 30;
-  var size_number_height = SizeConfig.blockSizeVertical * 4;
+  var size_number_height = SizeConfig.blockSizeVertical! * 4;
   var size_type_width = SizeConfig.blockSizeHorizontal * 15;
-  var size_type_heigth = SizeConfig.blockSizeVertical * 4;
-  String output_size_type;
+  var size_type_heigth = SizeConfig.blockSizeVertical! * 4;
+  String? output_size_type;
   @override
   void initState() {
     im_provider = context.read<ImageProcessingProvider>();
@@ -260,9 +260,9 @@ class InputField extends StatelessWidget {
   InputField({this.default_val, this.width, this.controller});
   final default_val;
   final width;
-  final TextEditingController controller;
+  final TextEditingController? controller;
 
-  ImageProcessingProvider im_provider;
+  late ImageProcessingProvider im_provider;
 
   @override
   Widget build(BuildContext context) {
